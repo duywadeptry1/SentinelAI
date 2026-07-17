@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: sentinel_mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example_password
+      MONGO_INITDB_DATABASE: sentinel_db
+    volumes:
+      - mongo_data:/data/db
+
+  web:
+    build: .
+    container_name: sentinel_fastapi
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/workspace
+    environment:
+      - MONGODB_URI=mongodb://root:example_password@mongodb:27017/sentinel_db?authSource=admin
+    env_file:
+      - .env
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo_data:
