@@ -1,4 +1,18 @@
-.env
-__pycache__/
-.pytest_cache/
-.dockerignore
+# Môi trường ảo Python của Backend
+**/_venv/
+**/.venv/
+**/venv/
+
+# File chứa API Key nhạy cảm (CẤM push lên GitHub)
+**/.env
+
+# Python Cache
+**/__pycache__/
+**/*.py[cod]
+
+# Dữ liệu chạy Docker MongoDB
+**/mongo_data/
+
+# Cấu hình IDE cá nhân
+.vscode/
+.idea/
