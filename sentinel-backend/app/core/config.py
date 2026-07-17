@@ -4,16 +4,16 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Sentinel AI Backend"
     API_V1_STR: str = "/api/v1"
     
-    # Security
+    # Security Key cho Client và Admin Board
     STATIC_API_KEY: str
     ADMIN_SECRET_TOKEN: str
     
-    # Database
+    # Database (Kết nối thẳng lên MongoDB Atlas Cloud)
     MONGODB_URI: str
-    DB_NAME: str
+    DB_NAME: str = "sentinel_db"
     
-    # Gemini AI
-    GEMINI_API_KEY: str
+    # AI Engine Key (Sử dụng Groq API)
+    GROQ_API_KEY: str
 
     model_config = SettingsConfigDict(
         env_file=".env", 
