@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Sentinel AI</string>
+
+    <!-- Thêm dòng này vào để sửa lỗi -->
+    <string name="accessibility_description">Lõi phân tích Sentinel AI cần quyền này để tự động quét các liên kết độc hại trên màn hình (Zalo, Messenger...) và hiển thị thẻ đỏ cảnh báo ngay lập tức.</string>
+</resources>

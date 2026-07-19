@@ -11,22 +11,25 @@ router = APIRouter()
 @router.post("/", response_model=ReportResponse)
 async def submit_report(payload: ReportRequest, db = Depends(get_database)):
     try:
-        report_col = db["community_reports"]
+        report_col = db["pending_reports"] # Lưu vào khu cách ly
         
         # Tạo document báo cáo mới
         new_report = {
             "device_hash": payload.device_hash,
             "reported_text": payload.reported_text,
-            "status": "PENDING", # Chờ Admin duyệt
+            "report_type": payload.report_type,
+            "user_id": payload.user_id,
+            "trust_score": payload.trust_score,
+            "status": "PENDING", # Chờ Admin/AI duyệt
             "created_at": datetime.utcnow()
         }
         
         await report_col.insert_one(new_report)
-        logger.info(f"Đã ghi nhận báo cáo mới từ thiết bị: {payload.device_hash}")
+        logger.info(f"Đã ghi nhận báo cáo mới vào khu cách ly từ thiết bị: {payload.device_hash}")
         
         return ReportResponse(
             status="success",
-            message="Cảm ơn bạn! Báo cáo đã được gửi tới hệ thống phân tích."
+            message="Báo cáo đã được đưa vào khu vực cách ly để xác minh."
         )
     except Exception as e:
         logger.error(f"Lỗi khi lưu báo cáo: {e}")

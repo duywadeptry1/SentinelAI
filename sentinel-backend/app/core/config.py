@@ -12,7 +12,8 @@ class Settings(BaseSettings):
     MONGODB_URI: str
     DB_NAME: str = "sentinel_db"
     
-    # AI Engine Key (Sử dụng Groq API)
+    # AI Engine Key (Sử dụng cả 2 key API)
+    GEMINI_API_KEY: str
     GROQ_API_KEY: str
 
     model_config = SettingsConfigDict(

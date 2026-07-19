@@ -58,20 +58,41 @@ async def analyze_content_with_ai(content: str) -> dict:
             raw_text = result_json["choices"][0]["message"]["content"]
             return json.loads(raw_text.strip())
             
-        except Exception as e:
-            # 2. Ép nó in ra nguyên nhân thực sự từ server Groq
-            error_detail = e.response.text if hasattr(e, 'response') else str(e)
-            logger.error(f"❌ Chi tiết lỗi từ Groq: {error_detail}")
+        except Exception as groq_error:
+            # 1. Ép nó in ra nguyên nhân thực sự từ server Groq
+            error_detail = groq_error.response.text if hasattr(groq_error, 'response') else str(groq_error)
+            logger.warning(f"⚠️ Groq thất bại (Lỗi: {error_detail}). Bắt đầu chuyển hướng (Fallback) sang Gemini...")
             
-            # Giữ nguyên khối fallback cứu trợ ở dưới
-            return {
-                "is_risk": False,
-                "risk_score": 0,
-                "verdict_type": "SAFE",
-                "display_meta": {
-                    "title": "Kiểm tra thất bại",
-                    "reason": "Hệ thống AI đang bảo trì hoặc quá tải.",
-                    "recommendation": "Hãy cẩn trọng với các yêu cầu chuyển tiền lạ."
-                },
-                "extracted_entities": {"urls": [], "bank_accounts": [], "crypto_wallets": []}
-            }
+            try:
+                # LUỒNG DỰ PHÒNG: Gọi Gemini 3.5 Flash
+                gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
+                gemini_payload = {
+                    "contents": [{"parts": [{"text": f"{SYSTEM_PROMPT}\n\nPhân tích tin nhắn này: '{content}'"}]}],
+                    "generationConfig": {"response_mime_type": "application/json"}
+                }
+                
+                response_gemini = await client.post(gemini_url, json=gemini_payload)
+                response_gemini.raise_for_status()
+                
+                result_gemini = response_gemini.json()
+                raw_text_gemini = result_gemini["candidates"][0]["content"]["parts"][0]["text"]
+                logger.info("✅ Đã xử lý thành công bằng Gemini (Dự phòng).")
+                return json.loads(raw_text_gemini.strip())
+                
+            except Exception as gemini_error:
+                # LUỒNG CHỐT CHẶN (CẢ 2 ĐỀU SẬP): Trả về kết quả an toàn mặc định
+                gemini_detail = gemini_error.response.text if hasattr(gemini_error, 'response') else str(gemini_error)
+                logger.error(f"❌ Cả Groq và Gemini đều thất bại! Chi tiết lỗi Gemini: {gemini_detail}")
+                
+                # Giữ nguyên khối fallback cứu trợ ở dưới của ông
+                return {
+                    "is_risk": False,
+                    "risk_score": 0,
+                    "verdict_type": "SAFE",
+                    "display_meta": {
+                        "title": "Kiểm tra thất bại",
+                        "reason": "Hệ thống AI đang bảo trì hoặc quá tải.",
+                        "recommendation": "Hãy cẩn trọng với các yêu cầu chuyển tiền lạ."
+                    },
+                    "extracted_entities": {"urls": [], "bank_accounts": [], "crypto_wallets": []}
+                }

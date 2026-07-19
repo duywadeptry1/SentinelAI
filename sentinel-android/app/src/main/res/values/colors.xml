@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- New UI Colors -->
+    <color name="overlay_backdrop">#99000000</color> <!-- 60% Opacity -->
+    <color name="card_border">#FF4D4F</color>
+    <color name="header_bg">#FFF1F0</color>
+    <color name="alert_red">#D93025</color>
+    <color name="success_green">#34A853</color>
+    <color name="text_primary">#202124</color>
+    <color name="close_icon">#5F6368</color>
+    <color name="close_bg">#F1F3F4</color>
+</resources>
